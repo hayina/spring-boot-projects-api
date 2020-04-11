@@ -1,0 +1,80 @@
+package api.security;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import api.config.SpringApplicationContext;
+import api.dao.UserDao;
+import api.security.filters.JwtAuthenticationFilter;
+import api.security.filters.JwtAuthorizationFilter;
+
+@Configuration
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private UserDao userDetailsService;
+
+
+
+	// @formatter:off
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+
+		http.csrf().disable();
+		http.
+			authorizeRequests()
+				.antMatchers("/attachments/**").permitAll()
+				.anyRequest().authenticated()
+			.and()
+			
+				.addFilter(getJwtAuthorizationFilter())
+				.addFilter(getJwtAuthenticationFilter())
+
+			;
+
+		http.
+			sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+	}
+	// @formatter:on
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+
+		auth.userDetailsService(userDetailsService);
+	}
+
+	@Bean
+	public JwtAuthenticationFilter getJwtAuthenticationFilter() throws Exception {
+
+		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(authenticationManager());
+		filter.setFilterProcessesUrl("/api/login");
+		return filter;
+	}
+
+
+
+
+	@Bean
+	public JwtAuthorizationFilter getJwtAuthorizationFilter() throws Exception {
+		return new JwtAuthorizationFilter(authenticationManager());
+	}
+	
+	@Bean
+	public SpringApplicationContext SpringApplicationContext() {
+		return new SpringApplicationContext();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+}
