@@ -86,7 +86,7 @@ public class MarcheService {
 	
 	@Transactional(rollbackOn = Exception.class)
 	public Map<String, Integer> persistMarche(MarcheBean bean, MarcheAttachs attachs, Integer currentUser) 
-			throws IOException, ParseException {
+			throws IOException {
 
 
 		boolean editMode = bean.idMarche != null ;
@@ -295,7 +295,7 @@ public class MarcheService {
 		
 		boolean isDec = bean.decomptes != null && !bean.decomptes.isEmpty();
 		
-		List<MarchesDecomptes> deletedDec = new ArrayList<MarchesDecomptes>();
+		List<MarchesDecomptes> deletedDec = new ArrayList<>();
 		
 		if(isDec) {
 			
@@ -329,7 +329,10 @@ public class MarcheService {
 		
 		entityManager.flush();
 		
-		marche.setCurrentTaux( isTaux ? Collections.max(marche.getMarchesTaux(), Comparator.comparing(mt -> mt.getDateTaux())) : null );
+		marche.setCurrentTaux( isTaux ?
+				Collections.max(marche.getMarchesTaux(), Comparator.comparing(mt -> mt.getDateTaux()))
+				: null
+		);
 		marche.setCurrentOs( isOs ? Collections.max(marche.getMarchesOss(), Comparator.comparing(os -> os.getDateOs())) : null );
 		marche.setCurrentDecompte( isDec ? Collections.max(marche.getMarchesDecomptes(), Comparator.comparing(dec -> dec.getDateDecompte())) : null );
 //
@@ -397,7 +400,7 @@ public class MarcheService {
 			
 
 		// returnig
-		Map<String, Integer> idsMap = new HashMap<String, Integer>();
+		Map<String, Integer> idsMap = new HashMap<>();
 		idsMap.put("idMarche", marche.getId());
 		idsMap.put("idProjet", marche.getProjet().getId());
 		return idsMap;
@@ -468,16 +471,12 @@ public class MarcheService {
 	
 	public MarcheBean getMarcheForEdit(Integer idMarche) {
 
-		MarcheBean marcheDto = prepareMarcheDto(idMarche);
-
-		return marcheDto;
+		return prepareMarcheDto(idMarche);
 	}
 	
 	public MarcheBean getMarcheForDetail(Integer idMarche) {
 
-		MarcheBean marcheDto = prepareMarcheDto(idMarche);
-
-		return marcheDto;
+		return prepareMarcheDto(idMarche);
 	}
 	
 
@@ -524,14 +523,14 @@ public class MarcheService {
 		}
 				
 		
-		marche.getMarchesTaux().forEach(taux -> {
-			marcheDto.taux.add(new TauxBean(taux.getId(), taux.getTaux(), taux.getDateTaux(), taux.getCommentaire()));
-		});
+		marche.getMarchesTaux().forEach(taux ->
+				marcheDto.taux.add(new TauxBean(taux.getId(), taux.getTaux(), taux.getDateTaux(), taux.getCommentaire()))
+		);
 		
 		
-		marche.getMarchesSocietes().forEach(mSte -> {
-			marcheDto.societes.add(new SimpleDto(mSte.getSociete().getId(), mSte.getSociete().getNom()));
-		});
+		marche.getMarchesSocietes().forEach(mSte ->
+				marcheDto.societes.add(new SimpleDto(mSte.getSociete().getId(), mSte.getSociete().getNom()))
+		);
 		
 		marche.getMarchesDecomptes().forEach(dec -> {
 			
@@ -562,7 +561,7 @@ public class MarcheService {
 								Helpers.getDirFilesName(Helpers.getOsPathDate(marche.getId(), os.getDateOs()))
 						);
 						
-						if( os.getOsType().getId() == api.enums.OsType.COMMENCEMENT.value ) {
+						if(  api.enums.OsType.COMMENCEMENT.value.equals(os.getOsType().getId()) ) {
 							marcheDto.osStart.add(dto);
 						} else {							
 							marcheDto.os.add(dto);
@@ -579,7 +578,7 @@ public class MarcheService {
 
 	public Map<String, Object> marcheLoadingForEdit(Integer idMarche) {
 		
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		if(idMarche != null) {
 			map.put("marcheData", getMarcheForEdit(idMarche));
 		}

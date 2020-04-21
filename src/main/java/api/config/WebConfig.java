@@ -22,13 +22,13 @@ public class WebConfig implements WebMvcConfigurer {
 //	}
    
 	
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry
-			.addResourceHandler("/REACT-APP/**")
-			.addResourceLocations("/REACT-APP/")
-		; 
-	}
+//	@Override
+//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//		registry
+//			.addResourceHandler("/REACT-APP/**")
+//			.addResourceLocations("/REACT-APP/")
+//		;
+//	}
 	
 
 }

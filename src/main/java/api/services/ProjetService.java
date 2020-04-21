@@ -12,6 +12,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
+import api.dao.MarcheDao;
+import api.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +21,6 @@ import api.beans.ProjetBean;
 import api.dao.DiversDao;
 import api.dao.GenericDao;
 import api.dao.ProjetDao;
-import api.dto.PartnerDto;
-import api.dto.ProjetBasicDto;
-import api.dto.ProjetEditDto;
-import api.dto.SimpleDto;
-import api.dto.TreeDto;
 import api.entities.Acheteur;
 import api.entities.Commune;
 import api.entities.Fraction;
@@ -39,6 +36,7 @@ import api.entities.SrcFinancement;
 import api.entities.User;
 import api.enums.ContributionEnum;
 import api.security.utils.SecurityUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 public class ProjetService {
@@ -57,6 +55,10 @@ public class ProjetService {
 	private DiversDao diversDao;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private MarcheService marcheService;
+	@Autowired
+	private MarcheDao marcheDao;
 	
 	
 	
@@ -274,16 +276,19 @@ public class ProjetService {
 		
 		
 		return dto;
-	} 
-	
-	
+	}
+
+	@Transactional
+    public void delete(Integer idProjet) {
+		genericProjetDao.delete(Projet.class, idProjet);
+    }
 
 
-
-	
-
-	
-
-	
-
+	public DetailDto getDetailDto(@PathVariable Integer idProjet) {
+		return new DetailDto(
+				getProjetForDetail(idProjet),
+				marcheService.getDefaultMarcheForDetail(idProjet),
+				marcheDao.getMarchesIdsWithTypeByProjet(idProjet)
+		);
+	}
 }

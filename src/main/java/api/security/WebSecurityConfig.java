@@ -1,10 +1,13 @@
 package api.security;
 
+import api.dao.interfaces.IUserDao;
+import api.security.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,10 +19,11 @@ import api.security.filters.JwtAuthenticationFilter;
 import api.security.filters.JwtAuthorizationFilter;
 
 @Configuration
+//@EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private UserDao userDetailsService;
+	private IUserDao userDetailsService;
 
 
 
@@ -37,6 +41,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.addFilter(getJwtAuthorizationFilter())
 				.addFilter(getJwtAuthenticationFilter())
 
+				.exceptionHandling()
+				.authenticationEntryPoint((request, response, exception) -> {
+					HttpUtils.jsonExceptionResponse(response, exception, 401);
+				})
+				.accessDeniedHandler((request, response, exception) -> {
+					HttpUtils.jsonExceptionResponse(response, exception, 403);
+				})
+
 			;
 
 		http.
@@ -49,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
 		auth.userDetailsService(userDetailsService);
+//		auth.userDetailsService(SpringApplicationContext.getBean(IUserDao.class));
 	}
 
 	@Bean
@@ -56,6 +69,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(authenticationManager());
 		filter.setFilterProcessesUrl("/api/login");
+		filter.setAuthenticationFailureHandler((request, response, exception) -> {
+			HttpUtils.jsonExceptionResponse(response, exception, 401);
+		});
 		return filter;
 	}
 

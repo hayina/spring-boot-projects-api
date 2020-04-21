@@ -29,24 +29,23 @@ import api.services.MarcheService;
 import api.services.ProjetSearch;
 import api.services.ProjetService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/api")
 public class ProjetRest {
 
-	@Autowired
-	private GenericDao<Projet, Integer> gProjetDao;
-	@Autowired
-	private MarcheDao marcheDao;
-	@Autowired
-	private ProjetService projetService;
-	@Autowired
-	private ProjetSearch projetSearch;
-	@Autowired
-	private MarcheService marcheService;
-	@Autowired
-	private DiversDao diversDao;
 
+//	final private GenericDao<Projet, Integer> gProjetDao;
+//	final private MarcheDao marcheDao;
+	final private ProjetService projetService;
+//	final private ProjetSearch projetSearch;
+//	final private MarcheService marcheService;
+//	final private DiversDao diversDao;
 
+	public ProjetRest(ProjetService projetService) {
+		this.projetService = projetService;
+	}
 
 	/**
 	 * saving or updating project
@@ -55,16 +54,16 @@ public class ProjetRest {
 	 * @return
 	 */
 	@PostMapping(value = "/projets")
-	@EditProjectAuth
-	public Integer saveNewProjet(@CurrentUser Integer currentUser, @RequestBody ProjetBean bean) {
-		
+//	@EditProjectAuth
+	public Integer saveNewProjet(@CurrentUser Integer currentUser, @Valid @RequestBody ProjetBean bean) {
+		System.out.println("saveNewProjet");
 		return projetService.saveProjet(bean, currentUser);
 	}
-	
+
 	@PutMapping(value = "/projets/{idProjet}")
 	@SaveEditedProjectAuth
 	public Integer updateProjet(@CurrentUser Integer currentUser, @PathVariable Integer idProjet, @RequestBody ProjetBean bean) {
-		
+
 		bean.idProjet = idProjet;
 		return projetService.saveProjet(bean, currentUser);
 	}
@@ -98,40 +97,12 @@ public class ProjetRest {
 	@DeleteMapping(value = "/projets/{idProjet}")
 	@DeleteProjectAuth
 	public void deleteProjet(@PathVariable Integer idProjet) {
-		
-		gProjetDao.delete(Projet.class, idProjet);
+
+		projetService.delete(idProjet);
 	}
 	
 	
-	
-	@GetMapping(value = "/projets/detail/{idProjet}") 
-	public DetailDto getProjetForDetail(@PathVariable Integer idProjet) {
-		
-		return new DetailDto(
-				projetService.getProjetForDetail(idProjet), 
-				marcheService.getDefaultMarcheForDetail(idProjet),
-				marcheDao.getMarchesIdsWithTypeByProjet(idProjet)
-		);
-	}
-	
-	@GetMapping(value = "/projets/search/loading")
-	public Map<String, Object> projetsSearchLoading() {
-		
-		Map<String, Object> map = new HashMap<String, Object>();
-		
-		map.put("secteurs", diversDao.getSecteurs());
-		map.put("srcFinancements", diversDao.getSrcFinancements());
-		map.put("communes", diversDao.getCommunes());
-		map.put("acheteurs", diversDao.getAcheteurs());
-		
-		return map;
-	}
-	
-	@GetMapping(value = "/projets")
-	public PageResult getAllProjets(ProjetSearchBean bean) {
-		
-		return projetSearch.getListProjets(bean);
-	}
+
 	
 
 	

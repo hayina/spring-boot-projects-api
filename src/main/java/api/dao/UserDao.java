@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import api.dao.interfaces.IUserDao;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,7 +20,7 @@ import api.security.models.UserPrincipal;
 
 
 @Repository
-public class UserDao implements UserDetailsService {
+public class UserDao implements IUserDao {
 
 	
 	@PersistenceContext
@@ -109,9 +110,9 @@ public class UserDao implements UserDetailsService {
 	}
 
 
-	public List<User> getChargesSuivi() {
-		return entityManager.createQuery("SELECT u FROM User u WHERE u.chargeSuivi = 1", User.class).getResultList();
-	}
+//	public List<User> getChargesSuivi() {
+//		return entityManager.createQuery("SELECT u FROM User u WHERE u.chargeSuivi = 1", User.class).getResultList();
+//	}
 	
 	public List<User> getChargesSuiviWithDivision() {
 		return entityManager.createQuery("SELECT u FROM User u "
@@ -152,8 +153,7 @@ public class UserDao implements UserDetailsService {
 
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
+	public UserDetails loadUserByUsername(String username) {
 		return new UserPrincipal(fetchUserByLogin(username));
 	}
 

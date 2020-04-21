@@ -84,8 +84,6 @@ public class UserPrincipal implements UserDetails {
 		return userEntity;
 	}
 
-	public void setUserEntity(User userEntity) {
-		this.userEntity = userEntity;
-	}
+
 
 }
