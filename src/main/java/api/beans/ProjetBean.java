@@ -15,7 +15,7 @@ public class ProjetBean {
 	
 	public Integer idProjet;
 
-	@NotBlank(message = "L'intitulé ne doit pas être vide")
+	@NotBlank
 	public String intitule;
 
 	@NotNull
@@ -23,11 +23,17 @@ public class ProjetBean {
 
 	@NotEmpty
 	public List<String> localisations;
+	// we have to add validation for string value => "1.11.."
+	@AssertTrue(message = "Format invalid")
+	public boolean isLocationValid() {
+		return localisations == null || localisations.size() == 0
+				|| localisations.stream().allMatch(location -> location.matches("[1-9]+(\\.[1-9]+)*"));
+	}
 
 	@NotNull
 	public Integer secteur;
 
-	@NotNull(message = "Le maître d'ouvrage ne doit pas être NULL")
+	@NotNull
 	public Integer maitreOuvrage;
 
 	@NotNull

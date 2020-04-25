@@ -63,7 +63,7 @@ public class ProjetService {
 	
 	
 	@Transactional(rollbackOn = Exception.class)
-	public Integer saveProjet(ProjetBean bean, Integer currentUserID) {
+	public Projet saveProjet(ProjetBean bean, Integer currentUserID) {
 		
 		
 		boolean editMode = bean.idProjet != null;
@@ -104,14 +104,15 @@ public class ProjetService {
 			
 			bean.localisations.forEach( loc -> {
 				
-				List<Integer> t = Arrays.stream(loc.split("\\.")).map(Integer::parseInt).collect(Collectors.toList());
+				List<Integer> t = Arrays.stream(loc.split("\\."))
+						.map(Integer::parseInt).collect(Collectors.toList());
 				
 				projet.getLocalisations().add(
 						new Localisation( 
 								projet,
 								new Commune(t.get(0)), 
 								t.size() > 1 ? new Fraction(t.get(1)) : null
-								));
+						));
 			});
 			
 		}
@@ -148,7 +149,7 @@ public class ProjetService {
 		);
 
 
-		return projet.getId();
+		return projet;
 	}
 	
 	

@@ -1,5 +1,6 @@
 package api.controllers;
 
+import api.dto.ExceptionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -28,25 +29,39 @@ public class GlobalExceptionHandler  {
     }
 
 
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public Map<String, Object> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
+////        BindingResult result = ex.getBindingResult();
+////        List<FieldError> fieldErrors = result.getFieldErrors();
+//
+//        Map<String, Object> body = new LinkedHashMap<>();
+//        body.put("timestamp", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+//        body.put("status", HttpStatus.BAD_REQUEST.value());
+//
+//        //Get all fields errors
+//        body.put("errors", ex.getBindingResult()
+//                .getFieldErrors()
+//                .stream()
+//                .map(x -> x.getField() + " : " + x.getDefaultMessage())
+//                .collect(Collectors.toList()));
+//        return body;
+//
+//    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, Object> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
-//        BindingResult result = ex.getBindingResult();
-//        List<FieldError> fieldErrors = result.getFieldErrors();
+    public ExceptionDto methodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-        body.put("status", HttpStatus.BAD_REQUEST.value());
+        return new ExceptionDto(
+                HttpStatus.BAD_REQUEST.value(),
+                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()),
+                ex.getBindingResult().getFieldErrors()
+                        .stream().map(x -> new ExceptionDto.Error(x.getField(), x.getDefaultMessage()))
+                        .collect(Collectors.toList())
+        );
 
-        //Get all fields errors
-        body.put("errors", ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(x -> x.getField() + " : " + x.getDefaultMessage())
-                .collect(Collectors.toList()));
-        return body;
     }
-
 
 //
 //    @ExceptionHandler(UnauthorizedException.class)

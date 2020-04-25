@@ -66,7 +66,7 @@ class ProjetServiceTest {
 //        public Integer anneeProjet;
 
 
-        Integer stoerdProjetId = projetService.saveProjet(bean, 2);
+        projetService.saveProjet(bean, 2);
 
 //        assertNotNull(stoerdProjetId);
         verify(genericProjetDao, times(0)).find(anyInt(), eq(Projet.class));

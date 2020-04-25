@@ -35,45 +35,30 @@ import javax.validation.Valid;
 @RequestMapping(value = "/api")
 public class ProjetRest {
 
-
-//	final private GenericDao<Projet, Integer> gProjetDao;
-//	final private MarcheDao marcheDao;
 	final private ProjetService projetService;
-//	final private ProjetSearch projetSearch;
-//	final private MarcheService marcheService;
-//	final private DiversDao diversDao;
 
 	public ProjetRest(ProjetService projetService) {
 		this.projetService = projetService;
 	}
 
-	/**
-	 * saving or updating project
-	 * @param currentUser
-	 * @param bean
-	 * @return
-	 */
+
 	@PostMapping(value = "/projets")
-//	@EditProjectAuth
+	@EditProjectAuth
 	public Integer saveNewProjet(@CurrentUser Integer currentUser, @Valid @RequestBody ProjetBean bean) {
-		System.out.println("saveNewProjet");
-		return projetService.saveProjet(bean, currentUser);
+
+
+		return projetService.saveProjet(bean, currentUser).getId();
 	}
+
 
 	@PutMapping(value = "/projets/{idProjet}")
 	@SaveEditedProjectAuth
 	public Integer updateProjet(@CurrentUser Integer currentUser, @PathVariable Integer idProjet, @RequestBody ProjetBean bean) {
 
 		bean.idProjet = idProjet;
-		return projetService.saveProjet(bean, currentUser);
+		return projetService.saveProjet(bean, currentUser).getId();
 	}
-	
-	
-	/**
-	 * loading prject data for new or edit page
-	 * @param idProjet
-	 * @return
-	 */
+
 	
 	@GetMapping(value = "/projets/loading/{idProjet}")
 	@SaveEditedProjectAuth
@@ -88,11 +73,6 @@ public class ProjetRest {
 		
 		return projetService.projetLoadingForEdit(null);
 	}
-	
-	/**
-	 * deleting the project
-	 * @param idProjet
-	 */
 
 	@DeleteMapping(value = "/projets/{idProjet}")
 	@DeleteProjectAuth
@@ -100,12 +80,6 @@ public class ProjetRest {
 
 		projetService.delete(idProjet);
 	}
-	
-	
-
-	
-
-	
 
 }
 
