@@ -11,15 +11,19 @@ public class PartnerDto {
 	public PartnerDto() {}
 	
 
-	
+
+
+	public PartnerDto(SimpleDto partner, Double montant) {
+		this.partner = partner;
+		this.montant = montant;
+	}
+
 	public PartnerDto(SimpleDto partner, Double montant, Integer contribution, String commentaire) {
-		super();
 		this.partner = partner;
 		this.montant = montant;
 		this.contribution = contribution;
 		this.commentaire = commentaire;
 	}
-	
-	
+
 	
 }

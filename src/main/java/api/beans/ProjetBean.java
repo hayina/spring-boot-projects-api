@@ -1,15 +1,12 @@
 package api.beans;
 
-import java.util.List;
-
 import api.dto.PartnerDto;
-import api.entities.IndhProgramme;
-import api.entities.ProjetIndh;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class ProjetBean {
 	
@@ -45,21 +42,21 @@ public class ProjetBean {
 	@NotNull
 	public Integer srcFinancement;
 	public Integer indhProgramme;
-	@AssertTrue
-	public boolean isINDHNotNull() {
+	@AssertTrue(message = "Champ obligatoire")
+	public boolean isIndhNotNull() {
 		return !api.enums.SrcFinancement.INDH.val().equals(srcFinancement) || indhProgramme != null;
 	}
 
 	public boolean isMaitreOuvrageDel = false;
 	public Integer maitreOuvrageDel;
-	@AssertTrue
+	@AssertTrue(message = "Champ obligatoire")
 	public boolean isMaitreOuvrageDelNotNull() {
 		return !isMaitreOuvrageDel || maitreOuvrageDel != null;
 	}
 
 	public boolean isConvention = false;
 	public List<PartnerDto> partners;
-	@AssertTrue
+	@AssertTrue(message = "Champ obligatoire")
 	public boolean isPartnersNotNull() {
 		return !isConvention || (partners != null && partners.size() != 0);
 	}

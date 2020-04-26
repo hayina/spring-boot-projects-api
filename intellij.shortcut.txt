@@ -1,0 +1,19 @@
+
+=> select to end of line
+Ctrl+Shift+Right
+Ctrl+W
+
+=> duplicate lines
+Ctrl+D
+
+=> move lines
+(Ctrl|alt)+Shift+Up
+
+=> delete line
+Ctrl+Y
+
+=> Multipe selection
+Alt + Shift + Mouse click
+
+=> Select occurence
+Alt + J
