@@ -1,24 +1,12 @@
 package api.entities;
 
 
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.IDENTITY;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 
 
@@ -58,28 +46,28 @@ public class Projet implements java.io.Serializable {
 	// ==> @JoinColumn
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "secteur")
+	@JoinColumn
 	private Secteur secteur;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "projet_maitre_ouvrage")
 	private ProjetMaitreOuvrage projetMaitreOuvrage;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "projet_maitre_ouvrage_delegue")
 	private ProjetMaitreOuvrage projetMaitreOuvrageDelegue;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "charge_suivi")
-	public User chargeSuivi;
+	private User chargeSuivi;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "default_marche")
-	public Marches defaultMarche;
+	private Marches defaultMarche;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_saisie")
-	public User userSaisie;
+	private User userSaisie;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "src_financement")
@@ -87,20 +75,26 @@ public class Projet implements java.io.Serializable {
 	
 	//// MAPPED BY
 	
+
+
 	@OneToOne(mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
     private ProjetIndh indh;
+
+	@OneToMany(mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
+	private Set<ProjetMaitreOuvrage> maitreOuvrages = new HashSet<>(0);
+
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
+	private Set<Marches> marches = new HashSet<>(0);
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
-	private Set<Marches> marches = new HashSet<Marches>(0);
+	private Set<Localisation> localisations = new HashSet<>(0);
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
-	private Set<Localisation> localisations = new HashSet<Localisation>(0);
+	private Set<ProjetPartenaire> projetPartenaires = new HashSet<>(0);
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
-	private Set<ProjetPartenaire> projetPartenaires = new HashSet<ProjetPartenaire>(0);
-	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval=true)
-	private Set<ProjetUser> projetUsers = new HashSet<ProjetUser>(0);
+	private Set<ProjetUser> projetUsers = new HashSet<>(0);
 	
 	public Projet() {}
 	
@@ -263,7 +257,13 @@ public class Projet implements java.io.Serializable {
 	}
 
 
+	public void setMaitreOuvrages(Set<ProjetMaitreOuvrage> maitreOuvrages) {
+		this.maitreOuvrages = maitreOuvrages;
+	}
 
+	public Set<ProjetMaitreOuvrage> getMaitreOuvrages() {
+		return maitreOuvrages;
+	}
 
 	
 }

@@ -1,54 +1,32 @@
 package api.services;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import api.beans.ProjetBean;
+import api.dao.DiversDao;
+import api.dao.GenericDao;
+import api.dao.MarcheDao;
+import api.dao.ProjetDao;
+import api.dto.*;
+import api.entities.*;
+import api.enums.ContributionEnum;
+import api.security.utils.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-
-import api.dao.MarcheDao;
-import api.dto.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import api.beans.ProjetBean;
-import api.dao.DiversDao;
-import api.dao.GenericDao;
-import api.dao.ProjetDao;
-import api.entities.Acheteur;
-import api.entities.Commune;
-import api.entities.Fraction;
-import api.entities.IndhProgramme;
-import api.entities.Localisation;
-import api.entities.Marches;
-import api.entities.Projet;
-import api.entities.ProjetIndh;
-import api.entities.ProjetMaitreOuvrage;
-import api.entities.ProjetPartenaire;
-import api.entities.Secteur;
-import api.entities.SrcFinancement;
-import api.entities.User;
-import api.enums.ContributionEnum;
-import api.security.utils.SecurityUtils;
-import org.springframework.web.bind.annotation.PathVariable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjetService {
-	
+
 	@PersistenceContext
 	private EntityManager entityManager;
 	@Autowired
 	private ProjetDao projetDao;
 	@Autowired
-	private GenericDao<Projet, Integer> genericProjetDao;
-	@Autowired
-	private GenericDao<ProjetMaitreOuvrage, Integer> gProjetMaitreOuvrageDao;
+	private GenericDao<Projet, Integer> gProjetDao;
 	@Autowired
 	private DiversService diversService;
 	@Autowired
@@ -59,16 +37,15 @@ public class ProjetService {
 	private MarcheService marcheService;
 	@Autowired
 	private MarcheDao marcheDao;
-	
-	
-	
+
+
 	@Transactional(rollbackOn = Exception.class)
 	public Projet saveProjet(ProjetBean bean, Integer currentUserID) {
 		
 		
 		boolean editMode = bean.idProjet != null;
 		
-		Projet projet = editMode ? genericProjetDao.find(bean.idProjet, Projet.class) : new Projet();
+		var projet = editMode ? gProjetDao.find(bean.idProjet, Projet.class) : gProjetDao.persist(new Projet());
 		
 		projet.setIntitule(bean.intitule);
 		projet.setMontant(bean.montant);
@@ -78,75 +55,74 @@ public class ProjetService {
 		projet.setAnneeProjet(bean.anneeProjet);
 		projet.setChargeSuivi(new User(bean.chargeSuivi != null ? bean.chargeSuivi : currentUserID));
 		
-//		projet.setPrdts(bean.prdts);
-
-		
-		if(bean.idProjet == null) {
-			projet.setDateSaisie(new Date());
+		var now = new Date();
+		if(!editMode) {
+			projet.setDateSaisie(now);
 			projet.setUserSaisie(new User(currentUserID));
-			genericProjetDao.persist(projet);
 		} else {
-			projet.setDateLastModif(new Date());
+			projet.setDateLastModif(now);
+			//cleaning for associations
+			projet.setIndh(null);
+			projet.setProjetMaitreOuvrage(null);
+			projet.setProjetMaitreOuvrageDelegue(null);
+			projet.getMaitreOuvrages().clear();
+			projet.getProjetPartenaires().clear();
+			projet.getLocalisations().clear();
+			entityManager.flush();
 		}
 
-		projet.setIndh(null);
-		projet.getProjetPartenaires().clear();
-		projet.getLocalisations().clear();
-		entityManager.flush();
-		
 		projet.setIndh(
 				bean.srcFinancement.equals(api.enums.SrcFinancement.INDH.val()) ?
 						new ProjetIndh(projet, new IndhProgramme(bean.indhProgramme)) : null
 		);
 
 		
-		if( bean.localisations != null && !bean.localisations.isEmpty() ) {
+//		if( bean.localisations != null && !bean.localisations.isEmpty() ) {
 			
-			bean.localisations.forEach( loc -> {
-				
-				List<Integer> t = Arrays.stream(loc.split("\\."))
-						.map(Integer::parseInt).collect(Collectors.toList());
-				
-				projet.getLocalisations().add(
-						new Localisation( 
-								projet,
-								new Commune(t.get(0)), 
-								t.size() > 1 ? new Fraction(t.get(1)) : null
-						));
-			});
+		bean.localisations.forEach( loc -> {
+
+			List<Integer> t = Arrays.stream(loc.split("\\."))
+					.map(Integer::parseInt).collect(Collectors.toList());
+
+			projet.getLocalisations().add(
+					new Localisation(
+							projet,
+							new Commune(t.get(0)),
+							t.size() > 1 ? new Fraction(t.get(1)) : null
+					));
+		});
 			
-		}
+//		}
 		
 		
 		/////////////////////////////////////////////////// Partenaires
 		
 		if(bean.isConvention) {
-			bean.partners.forEach( p -> {
-
-
-				projet.getProjetPartenaires().add(
-						new ProjetPartenaire(
-									projet, 
-									new Acheteur(p.partner.value), 
-									p.montant,
-									p.commentaire
-								)
-						);
-			});
+			bean.partners.forEach( p -> projet.getProjetPartenaires().add(
+					new ProjetPartenaire(
+								projet,
+								new Acheteur(p.partner.value),
+								p.montant,
+								p.commentaire
+							)
+					));
 		}
 		
 
 		/////////////////////////////////////////////////// Maitre ouvrage
-		
 
-		projet.setProjetMaitreOuvrage(gProjetMaitreOuvrageDao.persist(new ProjetMaitreOuvrage(
-				new Acheteur(bean.maitreOuvrage), 
-				projet, 
-				false
-		)));
-		projet.setProjetMaitreOuvrageDelegue(
-				bean.isMaitreOuvrageDel ? gProjetMaitreOuvrageDao.persist(new ProjetMaitreOuvrage(new Acheteur(bean.maitreOuvrageDel), projet, true)) : null
-		);
+
+		projet.setProjetMaitreOuvrage(new ProjetMaitreOuvrage( new Acheteur(bean.maitreOuvrage), projet, false));
+		projet.getMaitreOuvrages().add(projet.getProjetMaitreOuvrage());
+
+//		projet.setProjetMaitreOuvrageDelegue(bean.isMaitreOuvrageDel ?
+//				new ProjetMaitreOuvrage(new Acheteur(bean.maitreOuvrageDel), projet, true) : null);
+//		if(bean.isMaitreOuvrageDel) projet.getMaitreOuvrages().add(projet.getProjetMaitreOuvrageDelegue());
+
+		if(bean.isMaitreOuvrageDel) {
+			projet.setProjetMaitreOuvrageDelegue(new ProjetMaitreOuvrage(new Acheteur(bean.maitreOuvrageDel), projet, true));
+			projet.getMaitreOuvrages().add(projet.getProjetMaitreOuvrageDelegue());
+		}
 
 
 		return projet;
@@ -155,7 +131,7 @@ public class ProjetService {
 	
 	public Map<String, Object> projetLoadingForEdit(Integer idProjet) {
 		
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 
 		
 		if(idProjet != null) {
@@ -196,17 +172,13 @@ public class ProjetService {
 			projet.getIndh()
 		);
 		
-		projet.getProjetPartenaires().forEach(pp -> {
-			dto.partners.add( new PartnerDto( 
-					new SimpleDto(pp.getPartenaire().getId(), pp.getPartenaire().getNom()), 
-					pp.getFinancement(), pp.getFinancement() != null ? ContributionEnum.financiere.value : ContributionEnum.autres.value ,
-					pp.getCommentaire()		
-			));
-		});
+		projet.getProjetPartenaires().forEach(pp -> dto.partners.add( new PartnerDto(
+				new SimpleDto(pp.getPartenaire().getId(), pp.getPartenaire().getNom()),
+				pp.getFinancement(), pp.getFinancement() != null ? ContributionEnum.financiere.value : ContributionEnum.autres.value ,
+				pp.getCommentaire()
+		)));
 		
-		projet.getLocalisations().forEach(loc -> {
-			dto.localisations.add(loc.getCommune().getId()+""+(loc.getFraction() != null ? "."+loc.getFraction().getId(): ""));
-		});
+		projet.getLocalisations().forEach(loc -> dto.localisations.add(loc.getCommune().getId()+""+(loc.getFraction() != null ? "."+loc.getFraction().getId(): "")));
 		
 		return dto;
 	} 
@@ -244,13 +216,11 @@ public class ProjetService {
 		
 
 
-		projet.getProjetPartenaires().forEach(pp -> {
-			dto.partners.add( new PartnerDto( 
-					new SimpleDto(pp.getPartenaire().getId(), pp.getPartenaire().getNom()), 
-					pp.getFinancement(), pp.getFinancement() != null ? ContributionEnum.financiere.value : ContributionEnum.autres.value ,
-					pp.getCommentaire()		
-			));
-		});
+		projet.getProjetPartenaires().forEach(pp -> dto.partners.add( new PartnerDto(
+				new SimpleDto(pp.getPartenaire().getId(), pp.getPartenaire().getNom()),
+				pp.getFinancement(), pp.getFinancement() != null ? ContributionEnum.financiere.value : ContributionEnum.autres.value ,
+				pp.getCommentaire()
+		)));
 		
 		if(projet.getIndh() != null) {			
 			dto.indhProgramme = new SimpleDto(projet.getIndh().getProgramme().getId(), projet.getIndh().getProgramme().getLabel()) ;
@@ -281,11 +251,11 @@ public class ProjetService {
 
 	@Transactional
     public void delete(Integer idProjet) {
-		genericProjetDao.delete(Projet.class, idProjet);
+		gProjetDao.delete(Projet.class, idProjet);
     }
 
 
-	public DetailDto getDetailDto(@PathVariable Integer idProjet) {
+	public DetailDto getDetailDto(Integer idProjet) {
 		return new DetailDto(
 				getProjetForDetail(idProjet),
 				marcheService.getDefaultMarcheForDetail(idProjet),

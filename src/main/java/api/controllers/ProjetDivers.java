@@ -7,14 +7,16 @@ import api.dto.DetailDto;
 import api.dto.PageResult;
 import api.services.ProjetSearch;
 import api.services.ProjetService;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping(value = "/api/projets")
 public class ProjetDivers {
 
     final private ProjetService projetService;
@@ -27,7 +29,13 @@ public class ProjetDivers {
         this.diversDao = diversDao;
     }
 
-    @GetMapping(value = "/projets/detail/{idProjet}")
+    @GetMapping
+    public PageResult getAllProjets(ProjetSearchBean bean) {
+
+        return projetSearch.getListProjets(bean);
+    }
+
+    @GetMapping(value = "/detail/{idProjet}")
     public DetailDto getProjetForDetail(@PathVariable Integer idProjet) {
 
         return projetService.getDetailDto(idProjet);
@@ -35,7 +43,7 @@ public class ProjetDivers {
 
 
 
-    @GetMapping(value = "/projets/search/loading")
+    @GetMapping(value = "/search/loading")
     public Map<String, Object> projetsSearchLoading() {
 
         Map<String, Object> map = new HashMap<>();
@@ -48,9 +56,5 @@ public class ProjetDivers {
         return map;
     }
 
-    @GetMapping(value = "/projets")
-    public PageResult getAllProjets(ProjetSearchBean bean) {
 
-        return projetSearch.getListProjets(bean);
-    }
 }

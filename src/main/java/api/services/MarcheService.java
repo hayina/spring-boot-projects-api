@@ -1,27 +1,5 @@
 package api.services;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.ParseException;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import api.beans.MarcheAttachs;
 import api.beans.MarcheBean;
 import api.beans.MarcheBean.DecomptesBean;
@@ -31,20 +9,25 @@ import api.dao.DiversDao;
 import api.dao.GenericDao;
 import api.dao.MarcheDao;
 import api.dto.SimpleDto;
-import api.entities.Marches;
-import api.entities.MarchesDecomptes;
-import api.entities.MarchesEtat;
-import api.entities.MarchesOs;
-import api.entities.MarchesSociete;
-import api.entities.MarchesTaux;
-import api.entities.MarchesType;
-import api.entities.OsType;
-import api.entities.Projet;
-import api.entities.Societe;
+import api.entities.*;
 import api.enums.MarcheTypeEnum;
 import api.exceptions.OsIntegrityException;
 import api.helpers.CONSTANTS;
 import api.helpers.Helpers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MarcheService {
@@ -328,7 +311,8 @@ public class MarcheService {
 		}
 		
 		entityManager.flush();
-		
+
+
 		marche.setCurrentTaux( isTaux ?
 				Collections.max(marche.getMarchesTaux(), Comparator.comparing(mt -> mt.getDateTaux()))
 				: null

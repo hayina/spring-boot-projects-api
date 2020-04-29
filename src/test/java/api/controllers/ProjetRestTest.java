@@ -2,18 +2,13 @@ package api.controllers;
 
 import api.beans.ProjetBean;
 import api.dto.ExceptionDto;
-import api.dto.PartnerDto;
-import api.dto.SimpleDto;
 import api.entities.Projet;
-import api.enums.SrcFinancement;
 import api.security.WebSecurityConfig;
 import api.services.ProjetService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -70,17 +65,16 @@ class ProjetRestTest {
 
     @BeforeEach
     void setUp() {
-
         regularProjetDto = new ProjetBean();
-
     }
+
 
     @Test
     @DisplayName("valid required fields")
     void saveNewProjectValidRequiredFields() throws Exception {
 
         Projet expectedProj = new Projet(1100);
-        initRequiredFields();
+        regularProjetDto.initRequiredFields();
         when(projetService.saveProjet(any(ProjetBean.class), any())).thenReturn(expectedProj);
 
         MvcResult mvcResult = performOkRequest(regularProjetDto);
@@ -93,7 +87,7 @@ class ProjetRestTest {
     @DisplayName("Full bean")
     void fullDtoTest() throws Exception {
 
-        fullInitDto();
+        regularProjetDto.fullInitDto();
         Projet expectedProj = new Projet(1100);
         when(projetService.saveProjet(any(ProjetBean.class), any())).thenReturn(expectedProj);
 
@@ -126,13 +120,12 @@ class ProjetRestTest {
         assertTrue(exceptionResponse.errors.stream().allMatch(error -> error.message.contains(REQUIRED_FIELD_MSG)));
     }
 
-    @ParameterizedTest
-    @DisplayName("invalid locations")
-    @ValueSource(strings = { ".", "1." , "1.1.", "a.a" })
-    void invalidLocationsTest(String invalidLocationPath) throws Exception{
+    @Test
+    @DisplayName("invalid location")
+    void invalidLocationTest() throws Exception{
 
-        initRequiredFields();
-        regularProjetDto.localisations = new ArrayList<>(List.of("1.1", invalidLocationPath));
+        regularProjetDto.initRequiredFields();
+        regularProjetDto.localisations = new ArrayList<>(List.of("1.1", "0.1" ));
         MvcResult mvcResult = performBadRequest(regularProjetDto);
 
         var exceptionResponse = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ExceptionDto.class);
@@ -143,11 +136,11 @@ class ProjetRestTest {
     }
 
     @Test
-    @DisplayName("(cross field validation) empty fields => partners, src financement, maitre ouvrage délégué")
+    @DisplayName("empty cross fields")
     void emptyCrossFieldsTest() throws Exception {
 
-        initRequiredFields();
-        initForCrossFields();
+        regularProjetDto.initRequiredFields();
+        regularProjetDto.initForCrossFields();
 
         MvcResult mvcResult = performBadRequest(regularProjetDto);
 
@@ -170,36 +163,33 @@ class ProjetRestTest {
     }
 
 
-
-
-
-
-
-    private void fullInitDto(){
-        initRequiredFields();
-        initForCrossFields();
-        regularProjetDto.indhProgramme=1;
-        regularProjetDto.maitreOuvrageDel=1;
-        regularProjetDto.partners= new ArrayList<>(Arrays.asList(new PartnerDto(new SimpleDto(1, ""), 1100D)));
-    }
-    private void initForCrossFields() {
-        regularProjetDto.isConvention = true;
-        regularProjetDto.srcFinancement = SrcFinancement.INDH.val();
-        regularProjetDto.isMaitreOuvrageDel = true;
-    }
-    private void initRequiredFields() {
-        regularProjetDto.intitule = "projetX";
-        regularProjetDto.montant = 100000D;
-        regularProjetDto.localisations = new ArrayList<>(List.of("1.11"));
-        regularProjetDto.secteur = 1;
-        regularProjetDto.maitreOuvrage=1;
-        regularProjetDto.chargeSuivi=1;
-        regularProjetDto.anneeProjet=2020;
-        regularProjetDto.srcFinancement= SrcFinancement.BG.val();;
-    }
+//    private void fullInitDto(){
+//        initRequiredFields();
+//        initRequiredCrossFields();
+//    }
+//    private void initRequiredCrossFields() {
+//        initForCrossFields();
+//        regularProjetDto.indhProgramme=1;
+//        regularProjetDto.maitreOuvrageDel=1;
+//        regularProjetDto.partners= new ArrayList<>(Arrays.asList(new PartnerDto(new SimpleDto(1, ""), 1100D)));
+//    }
+//    private void initForCrossFields() {
+//        regularProjetDto.isConvention = true;
+//        regularProjetDto.srcFinancement = SrcFinancement.INDH.val();
+//        regularProjetDto.isMaitreOuvrageDel = true;
+//    }
+//    private void initRequiredFields() {
+//        regularProjetDto.intitule = "projetX";
+//        regularProjetDto.montant = 100000D;
+//        regularProjetDto.localisations = new ArrayList<>(List.of("1.11"));
+//        regularProjetDto.secteur = 1;
+//        regularProjetDto.maitreOuvrage=1;
+//        regularProjetDto.chargeSuivi=1;
+//        regularProjetDto.anneeProjet=2020;
+//        regularProjetDto.srcFinancement= SrcFinancement.BG.val();;
+//    }
     private MvcResult performOkRequest(Object content) throws Exception {
         return performInit(content).andExpect(status().isOk()).andReturn();
-
     }
 
     private ResultActions performInit(Object content) throws Exception {
@@ -211,7 +201,6 @@ class ProjetRestTest {
     }
 
     private MvcResult performBadRequest(Object content) throws Exception {
-
         return performInit(content).andExpect(status().isBadRequest()).andReturn();
     }
 }

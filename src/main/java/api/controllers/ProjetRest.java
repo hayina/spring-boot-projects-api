@@ -35,7 +35,8 @@ public class ProjetRest {
 
 	@PutMapping(value = "/projets/{idProjet}")
 	@SaveEditedProjectAuth
-	public Integer updateProjet(@CurrentUser Integer currentUser, @PathVariable Integer idProjet, @RequestBody ProjetBean bean) {
+	public Integer updateProjet(@CurrentUser Integer currentUser, @PathVariable Integer idProjet,
+								@Valid @RequestBody ProjetBean bean) {
 
 		bean.idProjet = idProjet;
 		return projetService.saveProjet(bean, currentUser).getId();

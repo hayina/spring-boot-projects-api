@@ -1,14 +1,9 @@
 package api.entities;
 
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
+import javax.persistence.*;
+
 import static javax.persistence.GenerationType.IDENTITY;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 
 @Entity
@@ -41,6 +36,10 @@ public class Localisation implements java.io.Serializable {
 		this.projet = projet;
 		this.commune = commune;
 		this.fraction = fraction;
+	}
+	public Localisation(Projet projet, Commune commune) {
+		this.projet = projet;
+		this.commune = commune;
 	}
 	
 	public Localisation(Commune commune) {

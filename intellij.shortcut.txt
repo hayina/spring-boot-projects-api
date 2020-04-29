@@ -17,3 +17,9 @@ Alt + Shift + Mouse click
 
 => Select occurence
 Alt + J
+
+=> Select all occurrences:
+Shift + Ctrl + Alt + J
+
+=> Format code:
+Ctrl + Alt + L

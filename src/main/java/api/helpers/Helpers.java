@@ -1,21 +1,6 @@
 package api.helpers;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import api.exceptions.UnknowAttachment;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -23,7 +8,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import api.exceptions.UnknowAttachment;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Component
@@ -183,5 +177,18 @@ public class Helpers {
 //		
 //		return false;
 //	}
+
+
+	public static <T, U> boolean compareLists(Collection<T> list1, Collection<U> list2, BiPredicate<T, U> predicate) {
+
+		if( list1 == null || list2 == null )
+			throw new IllegalArgumentException("null values not accepted");
+
+		if( (!(list1 instanceof List) && !(list1 instanceof Set)) || (!(list1 instanceof List) && !(list2 instanceof Set)) )
+			throw new IllegalArgumentException("Only List & Set are accepted");
+
+		return list1.size() == list2.size() &&
+				list1.stream().allMatch(itme1 -> list2.stream().anyMatch(item2 -> predicate.test(itme1, item2)));
+	}
 
 }
