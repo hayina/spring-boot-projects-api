@@ -1,13 +1,12 @@
 package api.dao;
 
-import java.io.Serializable;
-import java.util.List;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-
-import org.springframework.stereotype.Repository;
+import java.io.Serializable;
+import java.util.List;
 
 
 @Repository
@@ -31,11 +30,11 @@ public class GenericDao<T, PK extends Serializable>  {
 		return this.entityManager.getReference(entityClass, id);
 	}
 	
-	@SuppressWarnings("unchecked")
+
 	public List<T> findAll(Class<T> entityClass) {
-		return entityManager.createQuery("Select t from " + entityClass.getSimpleName() + " t").getResultList();
+		return entityManager.createQuery("Select t from " + entityClass.getSimpleName() + " t", entityClass).getResultList();
 	}
-	
+
 	
 	public T update(T t) {
 	    return this.entityManager.merge(t);

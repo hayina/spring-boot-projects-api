@@ -3,6 +3,7 @@ package api.services;
 import api.beans.ProjetBean;
 import api.dao.GenericDao;
 import api.entities.Projet;
+import api.enums.SrcFinancement;
 import api.helpers.Helpers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,7 +30,8 @@ class ProjetServiceTest {
     private @Mock EntityManager entityManager;
     private @Mock GenericDao<Projet, Integer> gProjetDao;
 
-    static Integer projetId = 1475820;
+    static Integer newProjectId = 11;
+    static Integer editedProjectId = 22;
 
     @BeforeEach
     void setUp() {
@@ -38,23 +40,27 @@ class ProjetServiceTest {
 
     @ParameterizedTest
     @MethodSource("getDtoForSaveService")
-    void saveNewProjet(ProjetBean dto, boolean requiredFieldsOnly, boolean editMode, Projet projetToEdit) {
+    void saveNewProjet(ProjetBean dto, Projet projetToEdit, boolean editMode) {
 
+        if(editMode) dto.idProjet = editedProjectId;
 
+        when(gProjetDao.persist(any(Projet.class))).thenAnswer( (invoc) -> {
+            var arg = invoc.getArgument(0, Projet.class);
+            arg.setId(newProjectId);
+            return arg;
+        });
 
-        if(editMode) dto.idProjet = projetId;
-
-        when(gProjetDao.persist(any(Projet.class))).thenReturn(new Projet(projetId));
-        when(gProjetDao.find(eq(projetId), eq(Projet.class))).thenReturn(projetToEdit);
+        when(gProjetDao.find(eq(editedProjectId), eq(Projet.class))).thenReturn(projetToEdit);
         doNothing().when(entityManager).flush();
 
         Projet entity = projetService.saveProjet(dto, 2);
 
-        assertFields(dto, entity, requiredFieldsOnly);
+        assertFields(dto, entity, false);
 
-//        verify(gProjetDao, times(editMode ? 1 : 0)).find(any(), eq(Projet.class));
-//        verify(entityManager, times(editMode ? 1 : 0)).flush();
-//        verify(gProjetDao, times(editMode ? 0 : 1)).persist(any(Projet.class));
+        verify(gProjetDao, times(editMode ? 1 : 0)).find(any(), eq(Projet.class));
+
+        verify(entityManager, times(editMode ? 1 : 0)).flush();
+        verify(gProjetDao, times(editMode ? 0 : 1)).persist(any(Projet.class));
     }
 
 
@@ -62,25 +68,31 @@ class ProjetServiceTest {
 
         var fullInitDto = new ProjetBean().fullInitDto();
         var justRequiredFieldsDto = new ProjetBean().initRequiredFields();
-        var fullProjectEntity = ProjetBean.getFullProjectEntity(projetId);
-//        var onlyRequiredProjectEntity = ProjetBean.getOnlyRequiredProjectEntity(projetId);
+        var fullProjectEntity = ProjetBean.getFullProjectEntity(editedProjectId);
 
         return Stream.of(
-//                Arguments.of(ProjetBean dto, boolean requiredFieldsOnly, boolean editMode),
                 // new
-                Arguments.of(fullInitDto, false, false, null),
-                Arguments.of(justRequiredFieldsDto, true, false, null),
+                Arguments.of(fullInitDto, null, false),
+                Arguments.of(justRequiredFieldsDto, null, false),
                 // edit
-                Arguments.of(fullInitDto, false, true, fullProjectEntity),
-//                Arguments.of(fullInitDto, false, true, onlyRequiredProjectEntity),
-                Arguments.of(justRequiredFieldsDto, true, true, fullProjectEntity)
+                Arguments.of(fullInitDto, fullProjectEntity, true),
+                Arguments.of(justRequiredFieldsDto, fullProjectEntity, true)
         );
     }
 
-    private void assertFields(ProjetBean dto, Projet entity, boolean requiredFieldsOnly) {
+    public static void assertFields(ProjetBean dto, Projet entity, boolean integration) {
+
+        // integration test
+        // dto.idProjet == null we are in new mode
+        if(integration && dto.idProjet == null ) {
+            assertThat(entity.getId()).isNotNull();
+        }
+        else {
+            assertThat(entity.getId()).isEqualTo(dto.idProjet != null ? dto.idProjet : newProjectId);
+        }
+
         // check for required fields
         assertAll(
-                () -> assertThat(entity.getId()).isEqualTo(projetId),
                 () -> assertThat(entity.getIntitule()).isEqualTo(dto.intitule),
                 () -> assertThat(entity.getMontant()).isEqualTo(dto.montant),
                 () -> assertThat(entity.getSecteur().getId()).isEqualTo(dto.secteur),
@@ -104,25 +116,29 @@ class ProjetServiceTest {
                 () -> assertThat(entity.getMaitreOuvrages().size()).isEqualTo(dto.isMaitreOuvrageDel ? 2 : 1)
         );
 
-        if(requiredFieldsOnly) {
-            assertAll(
-                    () -> assertThat(entity.getIndh()).isNull(),
-                    () -> assertThat(entity.getProjetMaitreOuvrageDelegue()).isNull(),
-                    () -> assertThat(entity.getProjetPartenaires()).isEmpty()
-            );
+
+        if(SrcFinancement.INDH.val().equals(dto.srcFinancement)) {
+            assertThat(entity.getIndh().getProgramme().getId()).isEqualTo(dto.indhProgramme);
+        } else {
+            assertThat(entity.getIndh()).isNull();
         }
-        else {
-            assertAll(
-                    () -> assertThat(entity.getIndh().getProgramme().getId()).isEqualTo(dto.indhProgramme),
-                    () -> assertThat(entity.getProjetMaitreOuvrageDelegue().getMaitreOuvrage().getId()).isEqualTo(dto.maitreOuvrageDel),
-                    () -> assertThat(entity.getProjetMaitreOuvrageDelegue().isDelegate()).isEqualTo(true),
-                    () -> assertThat(
-                            Helpers.compareLists(dto.partners, entity.getProjetPartenaires(),
-                                    (dtoPartner, entityProjetPartner) ->
-                                            dtoPartner.partner.value.equals(entityProjetPartner.getPartenaire().getId())
-                                                    && dtoPartner.montant.equals(entityProjetPartner.getFinancement()))
-                    ).isTrue()
-            );
+
+        if(dto.isMaitreOuvrageDel) {
+            assertThat(entity.getProjetMaitreOuvrageDelegue().getMaitreOuvrage().getId()).isEqualTo(dto.maitreOuvrageDel);
+            assertThat(entity.getProjetMaitreOuvrageDelegue().isDelegate()).isEqualTo(true);
+        } else {
+            assertThat(entity.getProjetMaitreOuvrageDelegue()).isNull();
+        }
+
+        if(dto.isConvention) {
+            assertThat(
+                    Helpers.compareLists(dto.partners, entity.getProjetPartenaires(),
+                            (dtoPartner, entityProjetPartner) ->
+                                    dtoPartner.partner.value.equals(entityProjetPartner.getPartenaire().getId())
+                                            && dtoPartner.montant.equals(entityProjetPartner.getFinancement()))
+            ).isTrue();
+        } else {
+            assertThat(entity.getProjetPartenaires()).isEmpty();
         }
 
     }

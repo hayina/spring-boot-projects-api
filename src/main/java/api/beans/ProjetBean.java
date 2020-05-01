@@ -74,11 +74,11 @@ public class ProjetBean {
 	}
 	public void initRequiredCrossFields() {
 		initForCrossFields();
-		this.indhProgramme=1;
-		this.maitreOuvrageDel=2;
+		this.indhProgramme=11; // Lutte contre la pauvreté en milieu rural
+		this.maitreOuvrageDel=10; // alomrane
 		this.partners= new ArrayList<>(Arrays.asList(
-				new PartnerDto(new SimpleDto(1, "partner1"), 1100D),
-				new PartnerDto(new SimpleDto(2, "partner2"), 1200D)
+				new PartnerDto(new SimpleDto(8, ""), 1100D), // Province Taourirt
+				new PartnerDto(new SimpleDto(9, ""), 1200D) // Conseil Provincial Taourirt
 		));
 	}
 	public void initForCrossFields() {
@@ -89,10 +89,10 @@ public class ProjetBean {
 	public ProjetBean initRequiredFields() {
 		this.intitule = "projetX";
 		this.montant = 100000D;
-		this.localisations = new ArrayList<>(List.of("12", "1.11"));
-		this.secteur = 1;
-		this.maitreOuvrage=1;
-		this.chargeSuivi=1;
+		this.localisations = new ArrayList<>(List.of("24", "13.1")); // 24 => Taourirt, 13.1 => Ain Lahjer.OULAD AYOUB
+		this.secteur = 1; // santé
+		this.maitreOuvrage=8; // province taourirt
+		this.chargeSuivi=2; //sahli
 		this.anneeProjet=2020;
 		this.srcFinancement= SrcFinancement.BG.val();;
 		this.isConvention=false;

@@ -46,7 +46,7 @@ public class Projet implements java.io.Serializable {
 	// ==> @JoinColumn
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn
+	@JoinColumn(name = "secteur")
 	private Secteur secteur;
 	
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

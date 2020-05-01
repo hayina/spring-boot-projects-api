@@ -45,7 +45,7 @@ public class ProjetService {
 		
 		boolean editMode = bean.idProjet != null;
 		
-		var projet = editMode ? gProjetDao.find(bean.idProjet, Projet.class) : gProjetDao.persist(new Projet());
+		var projet = editMode ? gProjetDao.find(bean.idProjet, Projet.class) : new Projet();
 		
 		projet.setIntitule(bean.intitule);
 		projet.setMontant(bean.montant);
@@ -59,6 +59,7 @@ public class ProjetService {
 		if(!editMode) {
 			projet.setDateSaisie(now);
 			projet.setUserSaisie(new User(currentUserID));
+			gProjetDao.persist(projet);
 		} else {
 			projet.setDateLastModif(now);
 			//cleaning for associations
