@@ -75,7 +75,7 @@ public class ProjetBean {
 	public void initRequiredCrossFields() {
 		initForCrossFields();
 		this.indhProgramme=11; // Lutte contre la pauvreté en milieu rural
-		this.maitreOuvrageDel=10; // alomrane
+		this.maitreOuvrageDel=10; // al omrane
 		this.partners= new ArrayList<>(Arrays.asList(
 				new PartnerDto(new SimpleDto(8, ""), 1100D), // Province Taourirt
 				new PartnerDto(new SimpleDto(9, ""), 1200D) // Conseil Provincial Taourirt
@@ -92,7 +92,7 @@ public class ProjetBean {
 		this.localisations = new ArrayList<>(List.of("24", "13.1")); // 24 => Taourirt, 13.1 => Ain Lahjer.OULAD AYOUB
 		this.secteur = 1; // santé
 		this.maitreOuvrage=8; // province taourirt
-		this.chargeSuivi=2; //sahli
+		this.chargeSuivi=2; // sahli
 		this.anneeProjet=2020;
 		this.srcFinancement= SrcFinancement.BG.val();;
 		this.isConvention=false;
@@ -110,11 +110,12 @@ public class ProjetBean {
 		projet.setProjetMaitreOuvrageDelegue(new ProjetMaitreOuvrage(new Acheteur(22), projet, true));
 		projet.getMaitreOuvrages().add(projet.getProjetMaitreOuvrageDelegue());
 
+		// (11,'Ministère de l'interieur'), (12,'ONEE - Branche Eau)
 		projet.getProjetPartenaires().add(
-				new ProjetPartenaire(projet, new Acheteur(111), 3300D, "commentaire3")
+				new ProjetPartenaire(projet, new Acheteur(12), 3300D, "commentaire3")
 		);
 		projet.getProjetPartenaires().add(
-				new ProjetPartenaire(projet, new Acheteur(222), 4400D, "commentaire4")
+				new ProjetPartenaire(projet, new Acheteur(11), 4400D, "commentaire4")
 		);
 
 		return projet;
@@ -126,17 +127,14 @@ public class ProjetBean {
 
 		projet.setIntitule("projetY");
 		projet.setMontant(200000D);
-		projet.setSecteur(new Secteur(2));
-		projet.setProjetMaitreOuvrage(new ProjetMaitreOuvrage(new Acheteur(11), projet, false));
+		projet.setSecteur(new Secteur(2)); // enseignement
+		projet.setProjetMaitreOuvrage(new ProjetMaitreOuvrage(new Acheteur(31), projet, false)); // 31 'Commune Taourirt'
 		projet.getMaitreOuvrages().add(projet.getProjetMaitreOuvrage());
 
 		projet.setAnneeProjet(2021);
 		projet.setSrcFinancement(new api.entities.SrcFinancement(SrcFinancement.BP.val()));
-		projet.getLocalisations().add(new Localisation(projet, new Commune(13)));
-		projet.getLocalisations().add(new Localisation(projet, new Commune(2), new Fraction(12)));
-
-//		projet.setIndh(new ProjetIndh(projet, new IndhProgramme(22)));
-
+		projet.getLocalisations().add(new Localisation(projet, new Commune(14))); // 14 'Machraa Hammadi'
+		projet.getLocalisations().add(new Localisation(projet, new Commune(20), new Fraction(195))); // 20 El Ateuf, 195 'OULAD MAHJOUB'
 
 		return projet;
 	}

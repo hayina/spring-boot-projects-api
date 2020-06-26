@@ -23,3 +23,10 @@ Shift + Ctrl + Alt + J
 
 => Format code:
 Ctrl + Alt + L
+
+=> select to the beginning/end of the line:
+Shift + Home|End
+
+
+=> move cursor to the beginning/end of the line:
+FN + Home|End

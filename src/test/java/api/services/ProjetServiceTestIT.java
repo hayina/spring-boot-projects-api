@@ -2,9 +2,15 @@ package api.services;
 
 import api.beans.ProjetBean;
 import api.entities.Projet;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.stream.Stream;
 
 
 //@DataJpaTest(
@@ -15,34 +21,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 //@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 //@TestPropertySource(properties = { "spring.jpa.hibernate.ddl-auto=validate" })
 @SpringBootTest
+@Disabled
 public class ProjetServiceTestIT {
-
 
     @Autowired
     private ProjetService projetService;
-//    @Autowired
-//    private GenericDao<Projet, Integer> gProjetDao;
-//    @PersistenceContext
-//    private EntityManager entityManager;
-//    @Autowired
-//    private GenericDao<Commune, Integer> communeDao;
-//    @Autowired
-//    private GenericDao<Projet, Integer> projetDao;
 
-    @Test
-    void saveNewProject(){
+    private static Stream<Arguments> getDtoForSaveService() {
+        return ProjetServiceTest.getDtoForSaveService();
+    }
 
-        var fullInitDto = new ProjetBean().fullInitDto();
-//
-        Projet entity = projetService.saveProjet(fullInitDto, 2);
-//
-        ProjetServiceTest.assertFields(fullInitDto, entity, true);
+    @ParameterizedTest
+    @MethodSource("getDtoForSaveService")
+    void saveNewProject(ProjetBean dto, Projet entityToEdit, boolean editMode){
 
-//        List<Commune> communes = communeDao.findAll(Commune.class);
-//        List<Projet> projets = projetDao.findAll(Projet.class);
 
-//        Assertions.assertThat(projets.size()).isGreaterThan(0);
-//        Assertions.assertThat(communes.size()).isEqualTo(2);
-
+        if(editMode) dto.idProjet = 45000;
+        Projet entity = projetService.saveProjet(dto, 2);
+        ProjetServiceTest.assertFields(dto, entity, true);
     }
 }

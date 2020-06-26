@@ -66,25 +66,27 @@ class ProjetServiceTest {
 
     static public Stream<Arguments> getDtoForSaveService(){
 
-        var fullInitDto = new ProjetBean().fullInitDto();
-        var justRequiredFieldsDto = new ProjetBean().initRequiredFields();
-        var fullProjectEntity = ProjetBean.getFullProjectEntity(editedProjectId);
+        var fullDto = new ProjetBean().fullInitDto();
+        var onlyRequiredFieldsDto = new ProjetBean().initRequiredFields();
+        var fullEntity = ProjetBean.getFullProjectEntity(editedProjectId);
+        var onlyRequiredFieldsEntity = ProjetBean.getOnlyRequiredProjectEntity(editedProjectId);
 
         return Stream.of(
                 // new
-                Arguments.of(fullInitDto, null, false),
-                Arguments.of(justRequiredFieldsDto, null, false),
+                Arguments.of(fullDto, null, false),
+                Arguments.of(onlyRequiredFieldsDto, null, false),
                 // edit
-                Arguments.of(fullInitDto, fullProjectEntity, true),
-                Arguments.of(justRequiredFieldsDto, fullProjectEntity, true)
+                Arguments.of(fullDto, fullEntity, true),
+                Arguments.of(fullDto, onlyRequiredFieldsEntity, true),
+                Arguments.of(onlyRequiredFieldsDto, fullEntity, true)
         );
     }
 
-    public static void assertFields(ProjetBean dto, Projet entity, boolean integration) {
+    public static void assertFields(ProjetBean dto, Projet entity, boolean isIntegrationTest) {
 
         // integration test
         // dto.idProjet == null we are in new mode
-        if(integration && dto.idProjet == null ) {
+        if(isIntegrationTest && dto.idProjet == null ) {
             assertThat(entity.getId()).isNotNull();
         }
         else {
