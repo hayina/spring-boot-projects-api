@@ -15,8 +15,7 @@
     <description>Projects API</description>
 
     <properties>
-        <java.version>14</java.version>
-
+        <java.version>11</java.version>
         <querydsl.version>4.2.1</querydsl.version>
     </properties>
 
@@ -110,20 +109,24 @@
             <scope>test</scope>
         </dependency>
 
+
+
     </dependencies>
 
     <build>
         <plugins>
+        
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>13</source>
-                    <target>13</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 
@@ -143,6 +146,27 @@
                     </execution>
                 </executions>
             </plugin>
+            
+
+
+			<plugin>
+				<groupId>com.spotify</groupId>
+	            <artifactId>dockerfile-maven-plugin</artifactId>
+	            <version>1.4.13</version>
+	            <executions>
+	                <execution>
+	                    <id>default</id>
+	                    <goals>
+	                        <goal>build</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+	            <configuration>
+	            	<repository>docker.io/hayatoo/spring-boot-spotify</repository>
+	                <tag>${project.version}</tag>
+	            </configuration>
+	         </plugin>
+            
 
         </plugins>
     </build>
