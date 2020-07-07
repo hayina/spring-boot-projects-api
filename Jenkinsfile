@@ -8,6 +8,7 @@ pipeline {
       }
       stage('Building ...') {
          steps {
+            powershell label: '', script: 'docker ps -a'
             powershell label: '', script: 'mvn clean package'
          }
       }
