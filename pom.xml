@@ -155,6 +155,7 @@
                 <configuration>
                     <to>
                         <image>hayatoo/spring-boot-app-jib</image>
+                        <credHelper>wincred</credHelper>
                         <tags>
                             <tag>${project.version}</tag>
                             <tag>latest</tag>
