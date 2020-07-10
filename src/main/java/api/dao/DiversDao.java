@@ -87,7 +87,7 @@ public class DiversDao {
 				.getResultList() ;
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public List<SimpleDto> getFinancements(Integer acheteur) {
 		return entityManager.createQuery("SELECT new api.dto.SimpleDto(sf.id, sf.label) "
 					+ "FROM AcheteurSrcFinancement ach_sf "
@@ -103,27 +103,29 @@ public class DiversDao {
 //				.getResultList() ;
 //	}
 	
-	@SuppressWarnings("unchecked")
+
 	public List<ProgrammeBean> getParentProgrammes() {
 		return entityManager.createQuery(""
 				+ "SELECT new api.beans.ProgrammeBean(p.id, p.label, parent.id, parent.label, p.phase) FROM IndhProgramme p "
 					+ "LEFT JOIN p.parentProgramme parent "
-				+ "WHERE p.parentProgramme IS NULL"
+				+ "WHERE p.parentProgramme IS NULL",
+				ProgrammeBean.class
 		)
 		.getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<IndhProgramme> getIndhProgrammes() {
-		return entityManager.createQuery("SELECT p FROM IndhProgramme p").getResultList();
-	}
+
+//	public List<IndhProgramme> getIndhProgrammes() {
+//		return entityManager.createQuery("SELECT p FROM IndhProgramme p").getResultList();
+//	}
 	
-	@SuppressWarnings("unchecked")
+
 	public List<ProgrammeBean> getIndhProgrammes2() {
 		
 		return entityManager.createQuery(""
 				+ "SELECT new api.beans.ProgrammeBean(p.id, p.label, parent.id, parent.label, p.phase) FROM IndhProgramme p "
-					+ "LEFT JOIN p.parentProgramme parent "
+					+ "LEFT JOIN p.parentProgramme parent ",
+				ProgrammeBean.class
 		)
 		.getResultList();
 		

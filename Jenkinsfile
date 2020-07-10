@@ -3,7 +3,7 @@ pipeline {
    stages {
       stage('Building ...') {
          steps {
-            powershell label: '', script: './mvnw clean package jib:dockerBuild'
+            powershell label: '', script: 'mvnw clean package jib:dockerBuild'
          }
       }
    }
