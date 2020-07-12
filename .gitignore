@@ -4,6 +4,8 @@ target/
 !**/src/main/**
 !**/src/test/**
 
+src/main/resources/REACT-APP/**
+
 ### STS ###
 .apt_generated
 .classpath

@@ -19,24 +19,27 @@ import api.helpers.Helpers;
 
 
 @Controller
-public class IndexController {
+public class Index {
 
 	
 	
-	@GetMapping(value = { "/", "/routes/**" })
+	@GetMapping(value = { "/", "/projets/**", "/marches/**", "/users/**", "/conventions/**", "/locations/**" })
+//	@GetMapping(value = { "/", "/**" })
 	public String index() {
-
-		return "forward:/REACT-APP/index.html";
+		System.out.println("index ...");
+//		return "/REACT-APP/index.html";
+		return "forward:/index.html";
 	}
 	
 	
 	@GetMapping(value = "/attachments/{marche}/{attachType}/download")
 	public @ResponseBody void getFile(
-								@RequestParam("n") String fileName, 
-								@RequestParam("d") String date, 
-								@PathVariable Integer marche, 
-								@PathVariable String attachType, 
-			HttpServletResponse response) throws IOException {
+				@RequestParam("n") String fileName,
+				@RequestParam("d") String date,
+				@PathVariable Integer marche,
+				@PathVariable String attachType,
+				HttpServletResponse response
+	) throws IOException {
 		
 		System.out.println("DOWNLOADING ...");
 

@@ -34,8 +34,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable();
 		http.
 			authorizeRequests()
-				.antMatchers("/attachments/**").permitAll()
-				.anyRequest().authenticated()
+//				.antMatchers("/").permitAll()
+//				.antMatchers("/index.html").permitAll()
+//				.antMatchers("/routes/**").permitAll()
+//				.antMatchers("/REACT-APP/**").permitAll()
+//				.antMatchers("/attachments/**").permitAll()
+//				.anyRequest().authenticated()
+				.antMatchers("/api/**").authenticated()
+				.antMatchers("/**").permitAll()
 			.and()
 			
 				.addFilter(getJwtAuthorizationFilter())
