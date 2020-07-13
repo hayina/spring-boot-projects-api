@@ -1,0 +1,13 @@
+
+
+
+spring:
+  datasource:
+    username: "root"
+    password: ${DATABASE_PASSWORD}
+    url: "jdbc:mysql://localhost:3306/projets2?useSSL=false&serverTimezone=UTC"
+
+#logging.level.web: debug
+
+
+attachments.path: "D:/attachments"

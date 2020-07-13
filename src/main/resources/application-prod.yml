@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    username: "root"
+    password: ${DATABASE_PASSWORD}
+    url: "jdbc:mysql://${DATABASE_HOST}:3306/projets2?useSSL=false&serverTimezone=UTC"
