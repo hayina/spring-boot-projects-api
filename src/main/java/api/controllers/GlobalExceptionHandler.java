@@ -1,7 +1,10 @@
 package api.controllers;
 
 import api.dto.ExceptionDto;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,10 +25,18 @@ public class GlobalExceptionHandler  {
 	
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus( HttpStatus.FORBIDDEN )
-    public AppExceptionModel handleForbiddenException(ForbiddenException ex) {
+    public ResponseEntity<AppExceptionModel> handleForbiddenException(ForbiddenException ex) {
 
-    	ex.printStackTrace();
-        return new AppExceptionModel(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(
+                    new AppExceptionModel(HttpStatus.FORBIDDEN.value(),
+                            ex.getMessage()), headers,
+                                HttpStatus.BAD_REQUEST
+        );
+
+//    	ex.printStackTrace();
+//        return new AppExceptionModel(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     }
 
 

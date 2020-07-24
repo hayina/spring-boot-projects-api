@@ -61,7 +61,7 @@ public class UserRest {
 	@EditUserAuth
 	public Map<String, Object> userLoading(HttpServletRequest request) {
 		
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		
 		if(request.getParameter("user") != null) {			
 			map.put("userInfos", userService.getUserForEdit(Integer.valueOf(request.getParameter("user"))));

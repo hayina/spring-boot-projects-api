@@ -8,7 +8,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebConfig implements WebMvcConfigurer {
 
@@ -21,10 +21,10 @@ public class WebConfig implements WebMvcConfigurer {
 //	    return multipartResolver;
 //	}
 
-	@Override
-	public void configureViewResolvers(ViewResolverRegistry registry) {
-		registry.jsp().prefix("/REACT-APP/");
-	}
+//	@Override
+//	public void configureViewResolvers(ViewResolverRegistry registry) {
+//		registry.jsp().prefix("/REACT-APP/");
+//	}
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {

@@ -19,7 +19,7 @@ public class UserBean {
 
 	public Boolean enabled = false;
 
-	public List<Integer> roles = new ArrayList<Integer>();
+	public List<Integer> roles = new ArrayList<>();
 	
 	
 	public UserBean() {}

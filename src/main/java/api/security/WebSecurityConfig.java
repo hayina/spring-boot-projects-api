@@ -32,8 +32,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 
 		http.csrf().disable();
-		http.
-			authorizeRequests()
+		http
+
+			.authorizeRequests()
+//				.antMatchers("/api/users/**").access("hasIpAddress(\"127.0.0.1\")")
+//				.antMatchers("/api/users/**").access("hasIpAddress(\"127.0.0.1\")")
+//				.antMatchers("/api/users/**").permitAll()
 //				.antMatchers("/").permitAll()
 //				.antMatchers("/index.html").permitAll()
 //				.antMatchers("/routes/**").permitAll()

@@ -77,11 +77,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String token = jwtService.generateToken(userEntity.getLogin(), userEntity.getId(), rolesForJwtClaim);
 		
 		response.setHeader(
-				env.getProperty("security.token.header-string"), 
-				env.getProperty("security.token.prefix") + token 
+				env.getProperty("security.token.header-string"),
+				env.getProperty("security.token.prefix") + " " + token
 		);
-		
-		Map<String, Object> userInfo = new HashMap<String, Object>();
+
+//		response.setHeader("Mama", "Mama");
+//		response.setHeader("baba", "baba");
+
+		Map<String, Object> userInfo = new HashMap<>();
 		userInfo.put("id", userEntity.getId());
 		userInfo.put("login", userEntity.getLogin());
 		userInfo.put("email", userEntity.getEmail());
