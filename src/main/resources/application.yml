@@ -10,22 +10,17 @@ server:
     multipart.max-file-size: 30MB
 
 
-# 3600000 = 1 hour - 86,400,000 = 1 day
-security:
-  token:
-    expiration: 86400000
-    prefix: 'Bearer'
-    secret-key: 'mamaH@yat-1957,;B@ba1951++iMMa1980*-z@K84Hich#@89^{abD$AmIN%Yous'
-    header-string: 'Authorization'
-
-
-
-security.role.prefix: 'ROLE_'
+logging:
+  level:
+    org.springframework:
+      web: DEBUG
+      security: DEBUG
 
 
 #spring.mvc.static-path-pattern=/REACT-APP/**
 #spring.resources.static-locations=classpath:/REACT-APP/
 #spring.mvc.view.prefix=classpath:/REACT-APP/
 
+gateway.ip: '192.168.1.5'
 
 spring.jpa.open-in-view: false

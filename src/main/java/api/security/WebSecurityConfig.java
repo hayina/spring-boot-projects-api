@@ -1,10 +1,12 @@
 package api.security;
 
 import api.dao.interfaces.IUserDao;
+import api.security.filters.UserRolesFilter;
 import api.security.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,13 +19,15 @@ import api.config.SpringApplicationContext;
 import api.dao.UserDao;
 import api.security.filters.JwtAuthenticationFilter;
 import api.security.filters.JwtAuthorizationFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 @Configuration
 //@EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private IUserDao userDetailsService;
+	@Autowired private IUserDao userDetailsService;
+
+	@Autowired Environment environment;
 
 
 
@@ -31,33 +35,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		http.csrf().disable();
-		http
+		http.csrf().disable()
+				.logout().disable()
+				.formLogin().disable()
+				.httpBasic().disable();
 
-			.authorizeRequests()
-//				.antMatchers("/api/users/**").access("hasIpAddress(\"127.0.0.1\")")
-//				.antMatchers("/api/users/**").access("hasIpAddress(\"127.0.0.1\")")
-//				.antMatchers("/api/users/**").permitAll()
-//				.antMatchers("/").permitAll()
-//				.antMatchers("/index.html").permitAll()
-//				.antMatchers("/routes/**").permitAll()
-//				.antMatchers("/REACT-APP/**").permitAll()
-//				.antMatchers("/attachments/**").permitAll()
-//				.anyRequest().authenticated()
-				.antMatchers("/api/**").authenticated()
-				.antMatchers("/**").permitAll()
+		http.authorizeRequests()
+				.antMatchers("/**").hasIpAddress(environment.getProperty("gateway.ip"))
+//				.antMatchers("/api/**").authenticated()
+//				.antMatchers("/**").permitAll()
 			.and()
-			
-				.addFilter(getJwtAuthorizationFilter())
-				.addFilter(getJwtAuthenticationFilter())
 
-				.exceptionHandling()
-				.authenticationEntryPoint((request, response, exception) -> {
-					HttpUtils.jsonExceptionResponse(response, exception, 401);
-				})
-				.accessDeniedHandler((request, response, exception) -> {
-					HttpUtils.jsonExceptionResponse(response, exception, 403);
-				})
+				.addFilterBefore(getUserRolesFilter(), AnonymousAuthenticationFilter.class)
+				.addFilterBefore(getJwtAuthenticationFilter(), UserRolesFilter.class)
+
+//				.addFilter(getUserRolesFilter())
+//				.addFilter(getJwtAuthenticationFilter())
+
+//				.exceptionHandling()
+//				.authenticationEntryPoint((request, response, exception) -> {
+//					HttpUtils.jsonExceptionResponse(response, exception, 401);
+//				})
+//				.accessDeniedHandler((request, response, exception) -> {
+//					HttpUtils.jsonExceptionResponse(response, exception, 403);
+//				})
 
 			;
 
@@ -89,9 +90,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 	@Bean
-	public JwtAuthorizationFilter getJwtAuthorizationFilter() throws Exception {
-		return new JwtAuthorizationFilter(authenticationManager());
+	public UserRolesFilter getUserRolesFilter() {
+		return new UserRolesFilter();
 	}
+//
+// 	@Bean
+//	public JwtAuthorizationFilter getJwtAuthorizationFilter() throws Exception {
+//		return new JwtAuthorizationFilter(authenticationManager());
+//	}
 	
 	@Bean
 	public SpringApplicationContext SpringApplicationContext() {

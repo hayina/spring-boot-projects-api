@@ -25,17 +25,18 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import io.jsonwebtoken.Claims;
 import api.services.JwtService;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	
 	private @Autowired Environment env;
 	private @Autowired JwtService jwtService;
 
 
-	public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
-		super(authenticationManager);
-	}
+//	public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+//		super(authenticationManager);
+//	}
 
 	
 	@Override
@@ -44,7 +45,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 
 //		try {
-			System.out.println("URI : " + request.getRequestURI() + " => " + request.getMethod());
+//			System.out.println("URI : " + request.getRequestURI() + " => " + request.getMethod());
 
 
 			String prefix = env.getProperty("security.token.prefix");

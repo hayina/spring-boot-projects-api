@@ -71,6 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		
 		String rolesForJwtClaim = principal.getAuthorities()
 				.stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+
 		List<String> rolesForResponse = principal.getAuthorities()
 				.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 				
